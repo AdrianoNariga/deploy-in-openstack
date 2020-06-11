@@ -7,13 +7,13 @@
       display_name: "web-volume"
       size: 20
       availability_zone: "{{ availability_zone }}"
-      display_description: Volume for repositories
+      display_description: Volume for web AWX teste
 
   - name: Attach vol in "web.{{ domain }}"
     os_server_volume:
       state: present
       server: "web.{{ domain }}"
-      volume: repository-volume
+      volume: web-volume
       device: /dev/sdb
 
 - hosts: "web.{{ domain }}"
