@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Create 20GB volume
+    os_volume:
+      state: present
+      display_name: "web-volume"
+      size: 20
+      availability_zone: "{{ availability_zone }}"
+      display_description: Volume for repositories
+
+  - name: Attach vol in "web.{{ domain }}"
+    os_server_volume:
+      state: present
+      server: "web.{{ domain }}"
+      volume: repository-volume
+      device: /dev/sdb
+
+- hosts: "web.{{ domain }}"
+  become: yes
+  tasks:
+  - name: formating volume
+    shell: "blkid | grep vdb || mkfs.xfs /dev/vdb"
+
+  - file: path=/var/lib/containers/ state=directory mode=0755
+
+  - name: creating mount point
+    shell: grep vdb /etc/fstab || echo "/dev/vdb /var/lib/containers xfs  defaults 0 0" >> /etc/fstab && mount -a

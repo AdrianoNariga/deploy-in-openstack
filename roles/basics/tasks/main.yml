@@ -1,0 +1,33 @@
+---
+- name: set timezone
+  command: timedatectl set-timezone America/Sao_Paulo
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: set hostname
+  hostname: name={{ inventory_hostname }}
+  tags: set-hostnames
+
+- name: build hosts file from openstack
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}'
+    line: "{{ hostvars[item].ip_private }} {{ item }} {{ hostvars[item].inventory_hostname_short }}"
+    state: present
+  when: hostvars[item].ansible_ssh_host is defined
+  with_items: "{{ groups['all'] }}"
+
+- name: installing basics pakages
+  yum: name="{{ item }}"
+  with_items:
+  - yum-utils
+  - git
+  - firewalld
+  - podman
+  - cockpit-podman
+
+- name: enable cockpit
+  service: name=cockpit.socket enabled=yes state=started

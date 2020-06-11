@@ -1,0 +1,7 @@
+---
+- yum: name={{ item }}
+  loop:
+  - httpd
+  - mod_ssl
+
+- service: name=httpd state=started enabled=yes

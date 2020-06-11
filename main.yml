@@ -1,0 +1,19 @@
+---
+- include: playbooks/security-groups.yml
+
+- hosts: localhost
+  tasks:
+  - name: Create instace web
+    include_role: name=create-instance
+    vars:
+      instance_name: "web.{{ domain }}"
+      hosts_groups: "web"
+      flavor_name: 'micro.1GB'
+
+- include: playbooks/volume.yml
+
+- hosts: web
+  become: yes
+  roles: 
+  - basics
+  - file-server
